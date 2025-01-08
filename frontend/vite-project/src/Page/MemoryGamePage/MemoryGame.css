@@ -1,0 +1,10 @@
+.msgGame{
+    align-items: center;
+    justify-content: center;
+    background-color: #868383d7;
+    opacity: 3px;
+    font-size: large;
+    color: darkred;
+    font-weight: bold;
+    z-index: 1;
+}

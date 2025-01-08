@@ -1,0 +1,18 @@
+
+import MemoryCard from "../Models/MemoryCards.js";
+const shuffleArray = (array) => {
+    for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+    }
+    return array;
+}
+let cardsArray=await MemoryCard.find();
+export const RenderAndShowArr=()=>
+{
+    const shuffledCardsArray=shuffleArray(cardsArray);
+    return shuffleArray(shuffledCardsArray);
+}
+export const gameProccess=()=>{
+
+}
