@@ -1,10 +1,17 @@
 .msgGame{
     align-items: center;
     justify-content: center;
+    text-align: center;
     background-color: #868383d7;
     opacity: 3px;
     font-size: large;
     color: darkred;
     font-weight: bold;
     z-index: 1;
+}
+.MemoryGamePage{
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
 }

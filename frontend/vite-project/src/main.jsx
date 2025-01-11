@@ -2,6 +2,7 @@ import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import './index.css'
 import axios from 'axios'
+import 'bootstrap/dist/css/bootstrap.min.css';
 import { BrowserRouter, Routes, Route } from 'react-router'
 import ChatPage from './Page/ChatPage/ChatPage.jsx';
 import MemoryGamePage from './Page/MemoryGamePage/MemoryGame.jsx'
