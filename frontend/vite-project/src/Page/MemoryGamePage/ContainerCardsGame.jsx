@@ -3,6 +3,7 @@ import MemoryCard from '../MemoryCard/MemoryCard.jsx';
 
 import './ContainerCardsGame.css';
 import { shuffledCardsArray } from '../../assets/memoryCardsArray.js';
+import { socket } from '../../../utils/socket.js';
 
 const ContainerCardsGame = ({players,cardsArray,msg,wantToLeave}) => {
 
@@ -31,7 +32,8 @@ const ContainerCardsGame = ({players,cardsArray,msg,wantToLeave}) => {
       else {setTurn(player1);}
     }
     const checkGuess=(id)=>{
-      if(cardsArr[id].imgSrc== cardsArr[prevCard].imgSrc)
+      socket.to(chatId).emit("playerClicked",cardsArr[id],cardsArr[prev],turn);
+      if((cardsArr[id].imgSrc== cardsArr[prevCard].imgSrc)&& (id!=prevCard))
       {
         console.log("correct");
         cardsArr[id].status = 'correct';
@@ -65,11 +67,11 @@ const ContainerCardsGame = ({players,cardsArray,msg,wantToLeave}) => {
           setCountSelectedCards(0);
     }
     const checkWinner=()=>{
-      if(player1.score+player2.score===20)
+      if(player1.score+player2.score===20 )
       {
         if(player1.score>player2.score)
           {
-            setMessage(`${player1.userName} is the winner!`);
+            setMessage(` 🎉🎇 ${player1.userName} is the winner! 🎉🎇`);
             console.log("player 1 is the winner");
           }
         else if(player1.score<player2.score)
@@ -87,6 +89,7 @@ const ContainerCardsGame = ({players,cardsArray,msg,wantToLeave}) => {
     }
     const handleClick =(id) => {
       console.log(id);
+      // socket.to(chatId).emit("playerClicked",cardsArr[id],cardsArr[prev],turn);
       if(countOfSelectedCards<2)
       {
         console.log("countOfSelectedCards", countOfSelectedCards);
@@ -117,7 +120,9 @@ const ContainerCardsGame = ({players,cardsArray,msg,wantToLeave}) => {
   
   return (
     <div className='containerPage'>
+        <button onClick={()=>wantToLeave}>Leave the game</button> 
        <h1 className='titleMemoryGame'>Memory Game</h1>
+
        <div className='containerScores'>
           <div className={"detailsUser "+classScorsPlayer1}>
               <h6>Player 1:</h6>
@@ -130,20 +135,23 @@ const ContainerCardsGame = ({players,cardsArray,msg,wantToLeave}) => {
               <h3>Score: {player2.score}</h3>
           </div>
        </div>
+
         {message?  message.includes("winner") ? (
           <div className={'messageBox '+"winnerMsg"}>
-            {message}
-            <div>
-              <button onClick={()=>anotherGame()}>Another Game</button>
-              <button onClick={()=>wantToLeave()}>Leave</button>
-            </div>
-          </div>): 
-            (<div className='messageBox'>{message}</div>): null}
-        <div className='gameBoard'>
-          {cardsArray.map((card,index) =>(
+              {message}
+              <div>
+                <button onClick={()=>anotherGame()}>Another Game</button>
+                <button onClick={()=>wantToLeave()}>Leave</button>
+              </div>
+          </div> ) : 
+          ( <div className='messageBox'> {message} </div> ) : null}
+          
+      <div className='gameBoard'>
+          { cardsArray.map( (card,index) =>(
             <MemoryCard key={index}  memoryCard={card} id={index} onClickCard={handleClick}/>
-          ))}
-        </div>
+          ))
+          }
+      </div>
     </div>
   )
 }

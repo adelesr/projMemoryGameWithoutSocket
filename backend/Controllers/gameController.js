@@ -12,6 +12,11 @@
 // }
 
 // export const RenderAndShowArr=()=>{return shuffleArray(cardsArray);}
-export const gameProccess=()=>{
 
+export const increaseScore=(player)=>{
+    player={...player, score:player.score+2}
+    return player;
+  }
+export const gameProccess=()=>{
+    
 }

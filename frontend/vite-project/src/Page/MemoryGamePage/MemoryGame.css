@@ -1,13 +1,47 @@
 .msgGame{
+    top:50vh;
+    left: 50vw;
+    position: fixed;
+    transform: translate(-50%, -50%);
+    width: 500px;
+    height: 200px;
     align-items: center;
     justify-content: center;
-    text-align: center;
-    background-color: #868383d7;
+    background-color:  rgba(0, 0, 0, 0.8);
+    box-shadow: 2px;
     opacity: 3px;
-    font-size: large;
-    color: darkred;
+    font-size: 50px;
+    z-index: 1000;
+    color: rgb(202, 173, 173);
     font-weight: bold;
-    z-index: 1;
+    font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+
+}
+.gamePage{
+    background-image: url('../../assets/Images/cardsImg/waitingGamePic.png');
+    background-repeat: no-repeat;
+    background-size:cover;
+    background-position:top;
+    position: fixed;
+    height: 100vh;
+    width: 100vw;
+
+}
+.spinner{
+    position: fixed;
+    bottom: 5%;
+    left: 47%;
+    width: 80px;
+    height: 80px;
+    z-index: 1000;
+}
+.hideMessage{
+    animation: fadeOut 0.4s forwards linear;
+}
+
+@keyframes fadeOut {
+    0%{ opacity: 1; }
+    100% { opacity: 0; }
 }
 .MemoryGamePage{
     flex-direction: column;

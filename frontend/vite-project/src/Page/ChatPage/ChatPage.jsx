@@ -17,24 +17,30 @@ const ChatPage = () => {
       email:"adelesr77@gmail.com",
       isFemale:true};
 
-    const movingGame= (user) => {
+
+    const movingGame= (user,chatId) => {
         console.log(user)
-        socket.emit("joinGame",user);
-        socket.on("player",(message)=>{
-          console.log(message);
-            navigate("/memory-game", { state: { message, user } })
-        })
-        socket.on('disconnect',()=>
-        console.log('User disconnected'));
-    }
-    
+        
+       
+        //   const message=msgAndPlayers[0];
+        //   const participants=msgAndPlayers[1]||[];
+        //   console.log(message,"room: "+chatId);
+        //   navigate("/memory-game", { state: { message, participants,chatId } })
+
+          navigate("/memory-game", { state: { user,chatId} })
+          socket.on('disconnect',()=>{console.log('User disconnected');})
+
+        }
+        const roomNum=1;
+        const chatId=roomNum+1;
+      //)
+
+   
   return (
     <div>
-        <button onClick={()=>movingGame(userOne)}>MemoryGame - User One</button>
-        <button onClick={()=>movingGame(userTwo)}>MemoryGame</button>
+        <button onClick={()=>movingGame(userOne,chatId)}>MemoryGame - User One</button>
+        <button onClick={()=>movingGame(userTwo,chatId)}>MemoryGame</button>
     </div>
-    
   )
 }
-
 export default ChatPage

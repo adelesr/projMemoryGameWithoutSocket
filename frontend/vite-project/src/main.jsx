@@ -11,12 +11,12 @@ import MemoryGamePage from './Page/MemoryGamePage/MemoryGame.jsx'
 
 axios.defaults.baseURL = "http://localhost:8080";
 createRoot(document.getElementById('root')).render(
-  <StrictMode>
+  // <StrictMode>
      <BrowserRouter>
     <Routes>
       <Route path='/' element={<ChatPage/>}/>
       <Route path='/memory-game' element={<MemoryGamePage/>}/>
     </Routes>
     </BrowserRouter>
-  </StrictMode>,
+  // </StrictMode>
 )
