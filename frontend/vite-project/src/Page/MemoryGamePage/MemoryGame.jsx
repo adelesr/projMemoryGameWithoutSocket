@@ -23,6 +23,8 @@ const MemoryGamePage = () => {
       const participents=arr[1];
       setMessageShow(message);
       setParticipantsArr(participents);
+      setIsLoading(false);
+
     });
 
     socket.emit("joinGame",user);
@@ -37,10 +39,10 @@ const MemoryGamePage = () => {
       // }
       
       
-  useEffect(() => {
-    if(messageShow==="Game started"){
-    }
-  }, [messageShow]);
+  // useEffect(() => {
+  //   if(messageShow==="Game started"){
+  //   }
+  // }, [messageShow]);
   return (
     <div>
        { isLoading ? 
@@ -54,7 +56,7 @@ const MemoryGamePage = () => {
                   {messageShow}
                 </div>
                   <div className='MemoryGamePage'>
-                      <ContainerCardsGame players={participantsArr} wantToLeave={""} cardsArray={shuffledCardsArray}/>
+                      <ContainerCardsGame players={participantsArr} wantToLeave={""} cards={shuffledCardsArray}/>
                   </div>
             </div> )
            : 

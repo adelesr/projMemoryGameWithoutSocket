@@ -2,122 +2,110 @@ import React, { useEffect, useState } from 'react'
 import MemoryCard from '../MemoryCard/MemoryCard.jsx';
 
 import './ContainerCardsGame.css';
-import { shuffledCardsArray } from '../../assets/memoryCardsArray.js';
 
-const ContainerCardsGame = ({players,cardsArray,msg,wantToLeave}) => {
+const ContainerCardsGame = ({players,cards,wantToLeave}) => {
 
-    const [message, setMessage] = useState(msg);
-    //במסך הצאט- אם לוחץ על המשחק המשתנה הופך לTRUE
-    const [player1, setPlayer1] = useState({userName:players[0],score:0,inTheGame:true});
-    const [player2, setPlayer2] = useState({userName:players[1],score:0,inTheGame:true});
-    // const [gameStatus, setGameStatus] = useState('loading');
-    // const [cardsArray, setCardsArray] = useState([]); //כל הכרטיסים בלוח
-    const [selectedCards, setSelectedCards] = useState([]) //מערך כרטיסים נבחרים
-    const [turn, setTurn] = useState(player1);
-    const [countOfSelectedCards, setCountSelectedCards] = useState(0);
-    const [cardsArr, setCardsArr] = useState(cardsArray);
-    const [prevCard, setPrevCard] = useState(-1);
+  const [winningMessage, setWinningMessage] = useState("");
+  //במסך הצאט- אם לוחץ על המשחק המשתנה הופך לTRUE
+  const [player1, setPlayer1] = useState({userName:players[0],score:0,inTheGame:true});
+  const [player2, setPlayer2] = useState({userName:players[1],score:0,inTheGame:true});
 
-    const increaseScore=() =>{
-      if(turn==player1)
-          setPlayer1({...player1, score:player1.score+2});
-      else {
-          setPlayer2({...player2, score:player2.score+2});
+  const [turn, setTurn] = useState(player1);
+  const [countOfSelectedCards, setCountSelectedCards] = useState(0);
+  const [cardsArr, setCardsArr] = useState(cards); //כל הכרטיסים בלוח
+  const [prevCard, setPrevCard] = useState(null); //כרטיס קודם שנבחר
+
+  const increaseScore=() =>{
+    if(turn==player1)
+        setPlayer1({...player1, score:player1.score+2});
+    else {
+        setPlayer2({...player2, score:player2.score+2});
+      }
+  }
+  const checkGuesses=(card1Index,card2Index )=>{
+    if(cardsArr[card1Index].imgSrc == cardsArr[card2Index].imgSrc)
+    {
+      cardsArr[card1Index].status =  'active correct';
+      cardsArr[card2Index].status = 'active correct';
+      // cardsArr[card1Index].status = 'correct';
+      // cardsArr[card2Index].status = 'correct';
+      increaseScore();
+      checkWinner();
+      setCardsArr(cardsArr);
+      //--- until here in thw server
+    }
+    else {
+      const newCardsArr = [...cardsArr];
+      newCardsArr[card1Index].status = 'active wrong';
+      newCardsArr[card2Index].status = 'active wrong';
+      setCardsArr(newCardsArr);
+      setTimeout(()=>{
+        const resetCardsArr = [...newCardsArr];
+        resetCardsArr[card1Index].status = "";
+        resetCardsArr[card2Index].status = "";
+        setCardsArr(resetCardsArr);
+      },2000)      
+    }
+    setPrevCard(null);
+    setTurn(turn==player1 ? player2:player1);
+  }
+  // const anotherGame=()=>{
+  //   setWinningMessage("");
+  //       setCardsArr(shuffledCardsArray(cardsArr));
+  //       setPrevCard(-1);
+  //       setTurn(player1);
+  //       setCountSelectedCards(0);
+  // }
+  const checkWinner=()=>{
+    if(player1.score+player2.score==20)
+    {
+      if(player1.score>player2.score)
+        {
+          setWinningMessage(`${player1.userName} is the winner!`);
         }
+      else if(player1.score<player2.score)
+        {
+          setWinningMessage(`${player2.userName} is the winner!`);
+        }
+      else {setWinningMessage("It's a tie! want to play another game?");}
+      setTimeout(()=>{
+        setWinningMessage("");
+      },5000);
     }
-    const passTurn=()=>{
-      if(turn==player1)
-        {setTurn(player2);}
-      else {setTurn(player1);}
+    else{console.log("there isnt winner");
     }
-    const checkGuess=(id)=>{
-      if(cardsArr[id].imgSrc== cardsArr[prevCard].imgSrc)
-      {
-        console.log("correct");
-        cardsArr[id].status = 'correct';
-        cardsArr[prevCard].status = 'correct';
+  }
+  const handleClick =(indexCard) => {
+    console.log("cardClicked method invoked - ", cardsArr[indexCard]);
+    
+    //אם נבחרו פחות משני קלפים והקלף שנבחר אינו זהה לקלף הקודם
+    if( (countOfSelectedCards<2) && (cardsArr[indexCard].id!==prevCard))
+    {
+      //אם הקלף שנבחר פנוי ולא מכיל בסטטוס את המילה נכון
+      if(!cardsArr[indexCard].status.includes("correct"))
+      { 
+        cardsArr[indexCard].status = "active";
         setCardsArr([...cardsArr]);
-        setPrevCard(-1);
-        increaseScore();
-        checkWinner();
-        passTurn();
-      }
-      else {
-        console.log("wrong");
-        cardsArr[id].status = 'wrong';
-        cardsArr[prevCard].status = 'wrong';
-        setCardsArr([...cardsArr]);
-        setTimeout(()=>{
-          cardsArr[id].status = "";
-          cardsArr[prevCard].status = "";
-          setCardsArr([...cardsArr]);
-          setPrevCard(-1);
-          passTurn();
-        },2000)
+        setCountSelectedCards(countOfSelectedCards+1);
 
-      }
-    }
-    const anotherGame=()=>{
-        setMessage("");
-          setCardsArr(shuffledCardsArray(cardsArr));
-          setPrevCard(-1);
-          setTurn(player1);
+        if(!prevCard) //אם זה הקלף הראשון שנבחר
+        {
+          setPrevCard(cardsArr[indexCard].id);
+        }
+        else { 
+          checkGuesses(indexCard,cardsArr.findIndex((c)=>c.id == prevCard) );
           setCountSelectedCards(0);
-    }
-    const checkWinner=()=>{
-      if(player1.score+player2.score===20)
-      {
-        if(player1.score>player2.score)
-          {
-            setMessage(`${player1.userName} is the winner!`);
-            console.log("player 1 is the winner");
-          }
-        else if(player1.score<player2.score)
-          {
-            setMessage(`${player2.userName} is the winner!`);
-            console.log("player 1 is the winner");
-          }
-        else {setMessage("It's a tie! want to play another game?");}
-        setTimeout(()=>{
-          setMessage("");
-        },5000);
-      }
-      else{console.log("there isnt winner");
-      }
-    }
-    const handleClick =(id) => {
-      console.log(id);
-      if( (countOfSelectedCards<2) && (id!=prevCard))
-      {
-        console.log("countOfSelectedCards", countOfSelectedCards);
-        if(cardsArr[id].status != "correct")
-        { 
-          if(prevCard===-1)
-          {
-            cardsArr[id].status = "active";
-            setCardsArr([...cardsArr]);
-            setPrevCard(id);
-            setCountSelectedCards(countOfSelectedCards+1);
-            console.log("countOfSelectedCards", countOfSelectedCards);
-          }
-          else { 
-            setCountSelectedCards(countOfSelectedCards+1);
-            checkGuess(id)
-          }
         }
       }
-      if(countOfSelectedCards===2)
-      {
-        setCountSelectedCards(0);
-        checkWinner();
-      }
     }
+  }
   const classScorsPlayer1= turn===player1? 'greenBorder': 'redBorder';
   const classScorsPlayer2= turn===player2? 'greenBorder': 'redBorder';
   
   return (
     <div className='containerPage'>
        <h1 className='titleMemoryGame'>Memory Game</h1>
+
        <div className='containerScores'>
           <div className={"detailsUser "+classScorsPlayer1}>
               <h6>Player 1:</h6>
@@ -130,18 +118,21 @@ const ContainerCardsGame = ({players,cardsArray,msg,wantToLeave}) => {
               <h3>Score: {player2.score}</h3>
           </div>
        </div>
-        {message?  message.includes("winner") ? (
+
+        {winningMessage ? (
           <div className={'messageBox '+"winnerMsg"}>
-            {message}
+            {winningMessage}
             <div>
               <button onClick={()=>anotherGame()}>Another Game</button>
               <button onClick={()=>wantToLeave()}>Leave</button>
             </div>
-          </div>): 
-            (<div className='messageBox'>{message}</div>): null}
+          </div>):   null}
+          
+
+
         <div className='gameBoard'>
-          {cardsArray.map((card,index) =>(
-            <MemoryCard key={index}  memoryCard={card} id={index} onClickCard={handleClick}/>
+          {cardsArr.map((card,index) =>(
+            <MemoryCard key={index} currentCard={card} indexCard={index} onClickCard={handleClick}/>
           ))}
         </div>
     </div>
