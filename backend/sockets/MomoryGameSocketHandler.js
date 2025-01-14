@@ -6,7 +6,6 @@ export const memoryGameRoomsReset = (socket,chatId) => {
     console.log("memory game rooms reset started");
     delete rooms[chatId];
     // socket.emit("leaveGameMessage");
-    console.log("memory game rooms reset ended");
 }
 
 export const socketHandler = (io, socket, user, chatId) => {
@@ -15,24 +14,20 @@ export const socketHandler = (io, socket, user, chatId) => {
         return;
     }
     const { userName } = user;
-    console.log("memory socket handler started by socket num =  " + socket.id);
-    
     //אם החדר לא במשחק עדיין וזה המשתנה הראשון
     if (!rooms[chatId]) {
     rooms[chatId] = [];
-    rooms[chatId].push(userName);
+    rooms[chatId].push(user);
     socket.join(chatId);
         console.log("room created");
         console.log("first user added to room, user name: " + userName);  
-    }else if (rooms[chatId].length === 1 && rooms[chatId][0] !== userName) {
-        rooms[chatId].push(userName);
+    }
+    else if (rooms[chatId].length === 1 && rooms[chatId][0].userName !== userName) {
+        rooms[chatId].push(user);
         socket.join(chatId);        
         console.log("second user added to room, user name: " + userName);
         
         io.to(chatId).emit("playerJoined", ["Game started", rooms[chatId]]);
-
-
-        // io.to(chatId).emit("playerJoined", ["Game started", rooms[chatId]]);
     } 
     console.log(rooms);
     
@@ -45,5 +40,36 @@ export const socketHandler = (io, socket, user, chatId) => {
     // }
 
     //----------------------------------------------------------------
+    socket.on("sendSelectedCards",({card1,card2,turn})=>{
+        socket.broadcast.to(chatId).emit("enemyMove",{card1,card2,turn});
+      })
 
+    socket.on("gameOver",({player1}, {player2})=>{
+         if(player1.score+player2.score==20 )
+        {   
+            var msg="";
+            if(player1.score>player2.score)
+            {
+               msg=`${player1.userName} is the winner!`;
+            }
+            else if(player1.score<player2.score)
+            {
+               msg=`${player2.userName} is the winner!`;
+            }
+            else {msg="It's a tie! want to play another game?";}
+            io.to(chatId).emit("gameOverMessage",msg);
+        }
+    })
+    let countPressedAnotherGame=0;
+    socket.on("newGame",()=>{
+        countPressedAnotherGame=countPressedAnotherGame+1;
+        if(countPressedAnotherGame==2)
+        {
+            io.to(chatId).emit("anotherGame");
+        }
+      
+    })
+    socket.on("leaveGame",()=>{
+        io.to(chatId).emit("exitFromGame");
+    })
 }

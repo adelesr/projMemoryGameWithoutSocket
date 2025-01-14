@@ -10,24 +10,25 @@ import '../MemoryGamePage/MemoryGame.css'
 const MemoryGamePage = () => {
   const navigate=useNavigate();
   const {state} = useLocation();
-  var {user} = state;
+  let {user} = state;
   const [messageShow, setMessageShow] = useState("");
   const [participantsArr, setParticipantsArr] = useState([]);
-  const [memoryCardsArr, setMemoryCardsArr] = useState([]);
+  const [memoryCardsArr, setMemoryCardsArr] = useState(shuffledCardsArray);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-
     socket.on('playerJoined',(arr) => {
       const message=arr[0]
       const participents=arr[1];
       setMessageShow(message);
       setParticipantsArr(participents);
       setIsLoading(false);
-
     });
-
+    // socket.emit("joinGame",{user,chatId});
     socket.emit("joinGame",user);
+    return () => {
+      socket.off('playerJoined');
+    }
   }, []);
   // const userLeave=()=>{
     //   socket.emit("leaveGame"); //לעשות סוקט אוף לJoinGame
@@ -56,7 +57,7 @@ const MemoryGamePage = () => {
                   {messageShow}
                 </div>
                   <div className='MemoryGamePage'>
-                      <ContainerCardsGame players={participantsArr} wantToLeave={""} cards={shuffledCardsArray}/>
+                      <ContainerCardsGame players={participantsArr} wantToLeave={""} cards={memoryCardsArr} currentUser={user}/>
                   </div>
             </div> )
            : 

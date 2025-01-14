@@ -1,20 +1,50 @@
 import React, { useEffect, useState } from 'react'
 import MemoryCard from '../MemoryCard/MemoryCard.jsx';
-
+import memoryGameOver from '../../Components/memoryGameOver.jsx';
 import './ContainerCardsGame.css';
+import { socket } from '../../../utils/socket.js';
+import { useNavigate } from 'react-router-dom';
+const ContainerCardsGame = ({players,cards,wantToLeave,currentUser}) => {
 
-const ContainerCardsGame = ({players,cards,wantToLeave}) => {
-
+  const navigate=useNavigate();
   const [winningMessage, setWinningMessage] = useState("");
   //במסך הצאט- אם לוחץ על המשחק המשתנה הופך לTRUE
-  const [player1, setPlayer1] = useState({userName:players[0],score:0,inTheGame:true});
-  const [player2, setPlayer2] = useState({userName:players[1],score:0,inTheGame:true});
-
+  const [player1, setPlayer1] = useState({id: players[0].id,userName:players[0].userName,score:0,inTheGame:true});
+  const [player2, setPlayer2] = useState({id: players[1].id,userName:players[1].userName,score:0,inTheGame:true});
   const [turn, setTurn] = useState(player1);
   const [countOfSelectedCards, setCountSelectedCards] = useState(0);
   const [cardsArr, setCardsArr] = useState(cards); //כל הכרטיסים בלוח
   const [prevCard, setPrevCard] = useState(null); //כרטיס קודם שנבחר
 
+  useEffect(() => {
+    if(turn.userName!==currentUser.userName)
+    {
+      socket.on("enemyMove",({card1,card2,user})=>{ //שליחת שני כרטיסים שהמשתמש סימן עם הסטטוס המעודכן שלהם ומי עשה את המהלך 
+        const card1Index = cardsArr.findIndex((c)=>c.id == card1.id);
+        const card2Index = cardsArr.findIndex((c)=>c.id == card2.id);
+
+        cardsArr[card1Index] = card1;
+        cardsArr[card2Index] = card2;
+        setCardsArr([...cardsArr]);
+        if(card1.status.includes("wrong") && card2.status.includes("wrong"))
+        {
+          setTimeout(()=>{
+            const resetCardsArr = [...cardsArr];
+            resetCardsArr[card1Index].status = "";
+            resetCardsArr[card2Index].status = "";
+            setCardsArr(resetCardsArr);
+          },2000)
+        }
+        else {
+          setPrevCard(null);
+          increaseScore();
+          setCardsArr([...cardsArr]);
+        }
+        setTurn(turn===player1 ? player2:player1); 
+      })
+    }
+  }, [turn])
+  
   const increaseScore=() =>{
     if(turn==player1)
         setPlayer1({...player1, score:player1.score+2});
@@ -27,8 +57,6 @@ const ContainerCardsGame = ({players,cards,wantToLeave}) => {
     {
       cardsArr[card1Index].status =  'active correct';
       cardsArr[card2Index].status = 'active correct';
-      // cardsArr[card1Index].status = 'correct';
-      // cardsArr[card2Index].status = 'correct';
       increaseScore();
       checkWinner();
       setCardsArr(cardsArr);
@@ -47,37 +75,41 @@ const ContainerCardsGame = ({players,cards,wantToLeave}) => {
       },2000)      
     }
     setPrevCard(null);
-    setTurn(turn==player1 ? player2:player1);
+    socket.emit("sendSelectedCards", {card1: cardsArr[card1Index] ,card2: cardsArr[card2Index], user: turn } ); //שחקן 1
+    setTurn(turn===player1 ? player2:player1); 
   }
-  // const anotherGame=()=>{
-  //   setWinningMessage("");
-  //       setCardsArr(shuffledCardsArray(cardsArr));
-  //       setPrevCard(-1);
-  //       setTurn(player1);
-  //       setCountSelectedCards(0);
-  // }
-  const checkWinner=()=>{
-    if(player1.score+player2.score==20)
+
+  const anotherGame=()=>{
+       socket.on("anotherGame",()=>{
+
+          setWinningMessage("");
+          setCardsArr(shuffledCardsArray(cardsArr));
+          setPrevCard(-1);
+          setTurn(player1);
+          setPlayer1({...player1, score:0});
+          setPlayer2({...player2, score:0});
+          setCountSelectedCards(0);
+       })
+       socket.emit("newGame");
+  }
+  const gameOver=()=>{
+    socket.on("exitFromGame",()=>{
+      setMessage
+      navigate("/");
+    })
+    if(player1.inTheGame && player2.inTheGame)
     {
-      if(player1.score>player2.score)
-        {
-          setWinningMessage(`${player1.userName} is the winner!`);
-        }
-      else if(player1.score<player2.score)
-        {
-          setWinningMessage(`${player2.userName} is the winner!`);
-        }
-      else {setWinningMessage("It's a tie! want to play another game?");}
-      setTimeout(()=>{
-        setWinningMessage("");
-      },5000);
-    }
-    else{console.log("there isnt winner");
+      socket.emit("leaveGame");
     }
   }
+  const checkWinner=()=>{
+    socket.on("gameOverMessage",(msg)=>{
+      setWinningMessage(msg);
+    })
+    socket.emit("gameOver", {player1,player2});
+}
+
   const handleClick =(indexCard) => {
-    console.log("cardClicked method invoked - ", cardsArr[indexCard]);
-    
     //אם נבחרו פחות משני קלפים והקלף שנבחר אינו זהה לקלף הקודם
     if( (countOfSelectedCards<2) && (cardsArr[indexCard].id!==prevCard))
     {
@@ -99,8 +131,8 @@ const ContainerCardsGame = ({players,cards,wantToLeave}) => {
       }
     }
   }
-  const classScorsPlayer1= turn===player1? 'greenBorder': 'redBorder';
-  const classScorsPlayer2= turn===player2? 'greenBorder': 'redBorder';
+  const classScorsPlayer1= (turn===player1) ? 'greenBorder': 'redBorder';
+  const classScorsPlayer2= (turn===player2) ? 'greenBorder': 'redBorder';
   
   return (
     <div className='containerPage'>
@@ -120,19 +152,14 @@ const ContainerCardsGame = ({players,cards,wantToLeave}) => {
        </div>
 
         {winningMessage ? (
-          <div className={'messageBox '+"winnerMsg"}>
-            {winningMessage}
-            <div>
-              <button onClick={()=>anotherGame()}>Another Game</button>
-              <button onClick={()=>wantToLeave()}>Leave</button>
-            </div>
-          </div>):   null}
+          <memoryGameOver msgResult={winningMessage} anotherGame={anotherGame} leaveGame={gameOver}/>
+         ) :   null}
           
 
 
         <div className='gameBoard'>
           {cardsArr.map((card,index) =>(
-            <MemoryCard key={index} currentCard={card} indexCard={index} onClickCard={handleClick}/>
+            <MemoryCard key={index} currentCard={card} indexCard={index} onClickCard={ (turn.id==currentUser.id) ? handleClick : null}/>
           ))}
         </div>
     </div>

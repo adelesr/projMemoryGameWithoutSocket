@@ -1,0 +1,36 @@
+.victoryImg{
+    background-image: url("../assets/Images/cardsImg/victoryImg.png");
+    width: 300px;
+    height: 400px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+}
+.messageBox{
+    background-color:cadetblue 0.5%;
+    color: black;
+    font-size: larger;
+    width: 25vw;
+    height: 200px;
+    border-radius: 10%;
+    text-align: center;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    z-index: 1;
+}
+.winnerMsg{
+    background-color: rgb(131, 240, 131, 0.5);
+    box-shadow: rgb(168, 167, 167) 1px 1px;
+    color: black;
+    font-size: larger;
+    width: 25vw;
+    height: 200px;
+    border-radius: 10%;
+    text-align: center;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    z-index: 1;
+}

@@ -7,19 +7,21 @@ const ChatPage = () => {
    // const [message, setMessage] = useState("waiting for the other player to join");
 
     let TempMessage = "0";
-    const userOne={ userName: "adelesr",
-    password:"12345678a!",
+    const userOne={ 
+    id:1,
+    userName: "adelesr",
     email:"adelesr77@gmail.com",
     isFemale:true};
 
-    const userTwo={ userName: "pizza",
-      password:"12345678a!",
-      email:"adelesr77@gmail.com",
-      isFemale:true};
+    const userTwo={ 
+    id:2,
+    userName: "pizza",
+    email:"adelesr77@gmail.com",
+    isFemale:true};
 
     const movingGame= (user) => {
-        console.log(user)
-            navigate("/memory-game", { state: { user } })
+      console.log(user)
+        navigate("/memory-game", { state: { user } })
     }
     
   return (

@@ -24,7 +24,8 @@ io.on("connection", (socket) => {
     chatId =55;
     socketHandler(io, socket, user,chatId);
   });
-
+  //    socket.emit("sendSelectedCards",{card1: cardsArr[card1Index],card2:cardsArr[card2Index],turn:turn} );
+ 
   socket.on("disconnect", () => {
     console.log("disconnected from chat id", chatId);
     
