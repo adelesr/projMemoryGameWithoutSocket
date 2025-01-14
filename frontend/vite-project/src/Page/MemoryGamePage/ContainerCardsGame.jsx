@@ -87,7 +87,7 @@ const ContainerCardsGame = ({players,cardsArray,msg,wantToLeave}) => {
     }
     const handleClick =(id) => {
       console.log(id);
-      if(countOfSelectedCards<2)
+      if( (countOfSelectedCards<2) && (id!=prevCard))
       {
         console.log("countOfSelectedCards", countOfSelectedCards);
         if(cardsArr[id].status != "correct")

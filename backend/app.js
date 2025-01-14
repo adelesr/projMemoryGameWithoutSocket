@@ -4,10 +4,8 @@ import { config } from "dotenv";
 // import mongoose from "mongoose";
 import useRouter from "./Routers/useRouter.js";
 import http from "http";
-import path from "path";
-import { fileURLToPath } from 'url';
 import { Server } from "socket.io";
-import { connect } from "http2";
+import { socketHandler,memoryGameRoomsReset} from "./sockets/MomoryGameSocketHandler.js";
 
 const app = express();
 const server = http.createServer(app);
@@ -16,38 +14,32 @@ export const io = new Server(server, { cors: "*" });
 config();
 const PORT = process.env.PORT || 8080;
 
-let participents = [];
+
+//socket connection-----------------
 io.on("connection", (socket) => {
- 
+  let chatId;
+  
+  // socket.on("joinGame", (user,chatId) => {
   socket.on("joinGame", (user) => {
-    const { userName } = user;
-    console.log("connected");
+    chatId =55;
+    socketHandler(io, socket, user,chatId);
+  });
+
+  socket.on("disconnect", () => {
+    console.log("disconnected from chat id", chatId);
     
-      if (participents.length === 0) {
-        //אם החדר לא במשחק עדיין וזה המשתנה הראשון
-        participents.push(userName);
-        console.log(userName);
-        socket.emit("player", "Waiting for the other player to join");
-      } 
-      else if (participents.length === 1 && participents[0] !== userName) {
-        participents.push(userName);
-        // let memoryCards=RenderAndShowArr();
-        // console.log(memoryCards);
-        io.sockets.emit("player", ["game started",participents]);
-      } 
-      else if (participents.length === 1 && participents[0] === userName) {
-        socket.emit("player", "you already in :)"); // Problometic error
-      } 
-      else if (participents.length >= 2) {
-        socket.emit("player", "game is already started");
-      }
+    memoryGameRoomsReset(socket,chatId);
+    console.log("user disconnected");
   });
 });
+//socket connection-----------------
+
+
+
+
 //who can connect to me and if i can recieve data from the browser
 app.use(cors({ origin: "http://localhost:5173", credentials: true }));
 app.use(express.json());
-const __dirname = path.dirname(fileURLToPath(import.meta.url)); // יצירת __dirname
-app.use('/cardsImg', express.static(path.join(__dirname, 'public/cardsImg')));
 app.use(express.urlencoded({ extended: true }));
 
 app.use("/api/v1/users", useRouter);

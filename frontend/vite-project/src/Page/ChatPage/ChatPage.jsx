@@ -19,13 +19,7 @@ const ChatPage = () => {
 
     const movingGame= (user) => {
         console.log(user)
-        socket.emit("joinGame",user);
-        socket.on("player",(message)=>{
-          console.log(message);
-            navigate("/memory-game", { state: { message, user } })
-        })
-        socket.on('disconnect',()=>
-        console.log('User disconnected'));
+            navigate("/memory-game", { state: { user } })
     }
     
   return (
