@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
-import MemoryCard from '../MemoryCard/MemoryCard.jsx';
-import MemoryGameOver from '../../Components/memoryGameOver.jsx';
+import MemoryCard from '../../Components/MemoryGameComponents/MemoryCard/MemoryCard.jsx';
+import MemoryGameOver from '../../Components/MemoryGameComponents/memoryGameOver.jsx';
 import './ContainerCardsGame.css';
 import { socket } from '../../../utils/socket.js';
 import { useNavigate } from 'react-router-dom';
@@ -97,7 +97,7 @@ const ContainerCardsGame = ({players,cards,sameUsersPlayTwice,currentUser}) => {
     socket.on("exitFromGame",()=>{
       player1.inTheGame=false;
       player2.inTheGame=false;
-      navigate("/");
+      navigate("/chat");
     })
     if(player1.inTheGame && player2.inTheGame)
     {

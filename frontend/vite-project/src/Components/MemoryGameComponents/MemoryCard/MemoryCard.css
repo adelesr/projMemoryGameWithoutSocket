@@ -30,8 +30,6 @@
     align-items: center;
     justify-content: center;
     transform: scale(1);
-    /* animation: 2s hideImg linear;
-    transition: transform 0.5s; */
 }
 
 @keyframes hideImg{

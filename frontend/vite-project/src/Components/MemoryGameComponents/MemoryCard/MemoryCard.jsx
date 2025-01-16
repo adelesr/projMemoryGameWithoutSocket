@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+import './MemoryCard.css'
 const MemoryCard = ({currentCard,indexCard,onClickCard}) => {
 
   // const cardClass= currentCard.status ? "active "+ currentCard.status : ""; 

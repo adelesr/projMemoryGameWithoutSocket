@@ -5,8 +5,8 @@ import Spinner from 'react-bootstrap/Spinner';
 import { socket } from '../../../utils/socket.js';
 import ContainerCardsGame from './ContainerCardsGame.jsx';
 import { shuffledCardsArray } from '../../assets/memoryCardsArray.js';
-import '../MemoryCard/MemoryCard.css';
-import '../MemoryGamePage/MemoryGame.css'
+import '../../Components/MemoryGameComponents/MemoryCard/MemoryCard.css';
+import './MemoryGameMain.css'
 const MemoryGamePage = () => {
   const navigate=useNavigate();
   const {state} = useLocation();
@@ -30,14 +30,14 @@ const MemoryGamePage = () => {
     socket.emit("joinGame",user);
 
     socket.on("exitFromGame",()=> {
-      navigate("/");
+      navigate("/chat");
       socket.off('exitFromGame');
     })
     socket.on("playerLeftMessage",()=> {
       setLeaveMsg("The other player left the game");
       setTimeout(()=>{
         setLeaveMsg("");
-        navigate("/");
+        navigate("/chat");
       },4000);
   });
     return () => {
@@ -87,13 +87,8 @@ const MemoryGamePage = () => {
                   </div>
             </div> )
           )
-      }
-         
-       {/* ( <div className="leaveGameMsg hideMessage">{messageShow}</div>) */}
-       
- 
+      }       
     </div>
-   
 )
 
 }
