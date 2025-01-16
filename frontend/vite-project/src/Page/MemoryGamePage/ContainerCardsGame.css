@@ -2,8 +2,8 @@
     align-items: center;
     justify-content: center;
     height: 100vh;
-    background-color: rgb(216, 243, 248);
     padding: 50px;
+    
     /* rgb(205, 92, 92); */
     /* rgba(183, 112, 183, 0.894); */
 }
@@ -38,6 +38,7 @@
     max-width: 40vw;
     grid-template-columns: repeat(5,1fr);
     grid-template-rows: repeat(4,1fr);
+
 }
 .detailsUser{
     background-color:bisque;

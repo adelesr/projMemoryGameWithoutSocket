@@ -52,28 +52,23 @@ export const socketHandler = (io, socket, user, chatId) => {
             var msg="";
             if(player1.score>player2.score)
             {
-               msg=`${player1.userName} is the winner!`;
+               msg=`${player1.userName} is the winner!🎉🎇`;
             }
             else if(player1.score<player2.score)
             {
-               msg=`${player2.userName} is the winner!`;
+               msg=`${player2.userName} is the winner!🎉🎇`;
             }
-            else {msg="It's a tie! want to play another game?";}
+            else {msg="It's a tie!🤝";}
             console.log(msg);
             io.to(chatId).emit("gameOverMessage",msg);
         }
     })
-    let countPressedAnotherGame=0;
-    socket.on("newGame",()=>{
-        countPressedAnotherGame=countPressedAnotherGame+1;
-        if(countPressedAnotherGame==2)
-        {
-            io.to(chatId).emit("anotherGame");
-        }
-      
-    })
+
     socket.on("leaveGame",()=>{
-        io.to(chatId).emit("exitFromGame");
+        socket.broadcast.emit("playerLeftMessage");
+        socket.emit("exitFromGame");
+
+        // io.to(chatId).emit("exitFromGame");
         delete rooms[chatId];
     })
 }
