@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react'
 import MemoryCard from '../MemoryCard/MemoryCard.jsx';
-import memoryGameOver from '../../Components/memoryGameOver.jsx';
+import MemoryGameOver from '../../Components/memoryGameOver.jsx';
 import './ContainerCardsGame.css';
 import { socket } from '../../../utils/socket.js';
 import { useNavigate } from 'react-router-dom';
-const ContainerCardsGame = ({players,cards,wantToLeave,currentUser}) => {
+const ContainerCardsGame = ({players,cards,sameUsersPlayTwice,currentUser}) => {
 
   const navigate=useNavigate();
   const [winningMessage, setWinningMessage] = useState("");
@@ -25,7 +25,7 @@ const ContainerCardsGame = ({players,cards,wantToLeave,currentUser}) => {
 
         cardsArr[card1Index] = card1;
         cardsArr[card2Index] = card2;
-        setCardsArr([...cardsArr]);
+        setCardsArr(cardsArr);
         if(card1.status.includes("wrong") && card2.status.includes("wrong"))
         {
           setTimeout(()=>{
@@ -38,7 +38,7 @@ const ContainerCardsGame = ({players,cards,wantToLeave,currentUser}) => {
         else {
           setPrevCard(null);
           increaseScore();
-          setCardsArr([...cardsArr]);
+          setCardsArr(cardsArr);
         }
         setTurn(turn===player1 ? player2:player1); 
       })
@@ -58,7 +58,7 @@ const ContainerCardsGame = ({players,cards,wantToLeave,currentUser}) => {
       cardsArr[card1Index].status =  'active correct';
       cardsArr[card2Index].status = 'active correct';
       increaseScore();
-      checkWinner();
+      setTimeout(()=>checkWinner(),0);
       setCardsArr(cardsArr);
       //--- until here in thw server
     }
@@ -80,21 +80,23 @@ const ContainerCardsGame = ({players,cards,wantToLeave,currentUser}) => {
   }
 
   const anotherGame=()=>{
-       socket.on("anotherGame",()=>{
-
-          setWinningMessage("");
-          setCardsArr(shuffledCardsArray(cardsArr));
-          setPrevCard(-1);
-          setTurn(player1);
-          setPlayer1({...player1, score:0});
-          setPlayer2({...player2, score:0});
-          setCountSelectedCards(0);
-       })
-       socket.emit("newGame");
+    socket.on("anotherGame",()=>{
+      setWinningMessage("");
+      setCardsArr(shuffledCardsArray(cardsArr));
+      setPrevCard(-1);
+      setTurn(player1);
+      setPlayer1({...player1, score:0});
+      setPlayer2({...player2, score:0});
+      setCountSelectedCards(0);
+      sameUsersPlayTwice();
+    })
+    socket.emit("newGame");
+      
   }
   const gameOver=()=>{
     socket.on("exitFromGame",()=>{
-      setMessage
+      player1.inTheGame=false;
+      player2.inTheGame=false;
       navigate("/");
     })
     if(player1.inTheGame && player2.inTheGame)
@@ -104,7 +106,9 @@ const ContainerCardsGame = ({players,cards,wantToLeave,currentUser}) => {
   }
   const checkWinner=()=>{
     socket.on("gameOverMessage",(msg)=>{
+      console.log(msg+ "change the state winningMessage");
       setWinningMessage(msg);
+      setTimeout(()=>console.log(msg+ "is the message after set"),0);
     })
     socket.emit("gameOver", {player1,player2});
 }
@@ -151,15 +155,17 @@ const ContainerCardsGame = ({players,cards,wantToLeave,currentUser}) => {
           </div>
        </div>
 
-        {winningMessage ? (
-          <memoryGameOver msgResult={winningMessage} anotherGame={anotherGame} leaveGame={gameOver}/>
-         ) :   null}
+        {winningMessage && (
+          <MemoryGameOver msgResult={winningMessage} anotherGame={anotherGame} leaveGame={gameOver}/>
+         )}
           
-
+          {!player1.inTheGame || !player2.inTheGame && (
+            <div className='leaveGameMsg'>The other player leave the game...👋🤝</div>
+          )}
 
         <div className='gameBoard'>
           {cardsArr.map((card,index) =>(
-            <MemoryCard key={index} currentCard={card} indexCard={index} onClickCard={ (turn.id==currentUser.id) ? handleClick : null}/>
+            <MemoryCard key={index} currentCard={card} indexCard={index} onClickCard={ (turn.id==currentUser.id) ? handleClick :{}}/>
           ))}
         </div>
     </div>

@@ -42,11 +42,13 @@ export const socketHandler = (io, socket, user, chatId) => {
     //----------------------------------------------------------------
     socket.on("sendSelectedCards",({card1,card2,turn})=>{
         socket.broadcast.to(chatId).emit("enemyMove",{card1,card2,turn});
-      })
+    })
 
-    socket.on("gameOver",({player1}, {player2})=>{
-         if(player1.score+player2.score==20 )
+    socket.on("gameOver",({player1, player2})=>{
+        console.log("player1 score: " + player1.score + ", player2 score: " + player2.score);
+         if(player1.score+player2.score===18 )
         {   
+            console.log("enter game over");
             var msg="";
             if(player1.score>player2.score)
             {
@@ -57,6 +59,7 @@ export const socketHandler = (io, socket, user, chatId) => {
                msg=`${player2.userName} is the winner!`;
             }
             else {msg="It's a tie! want to play another game?";}
+            console.log(msg);
             io.to(chatId).emit("gameOverMessage",msg);
         }
     })
@@ -71,5 +74,6 @@ export const socketHandler = (io, socket, user, chatId) => {
     })
     socket.on("leaveGame",()=>{
         io.to(chatId).emit("exitFromGame");
+        delete rooms[chatId];
     })
 }

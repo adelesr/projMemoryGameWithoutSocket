@@ -38,12 +38,21 @@ const MemoryGamePage = () => {
       //     setTimeout(setMessageShow(""),3000);
       //   })
       // }
-      
-      
-  // useEffect(() => {
-  //   if(messageShow==="Game started"){
-  //   }
-  // }, [messageShow]);
+      const sameUsersPlayTwice=()=>{
+        socket.on('playerJoined',(arr) => {
+          const message=arr[0]
+          const participents=arr[1];
+          setMessageShow(message);
+          setParticipantsArr(participents);
+          setMemoryCardsArr(shuffledCardsArray);
+          setIsLoading(false);
+        });
+        // socket.emit("joinGame",{user,chatId});
+        socket.emit("joinGame",user);
+        return () => {
+          socket.off('playerJoined');
+        }
+      }
   return (
     <div>
        { isLoading ? 
@@ -57,7 +66,7 @@ const MemoryGamePage = () => {
                   {messageShow}
                 </div>
                   <div className='MemoryGamePage'>
-                      <ContainerCardsGame players={participantsArr} wantToLeave={""} cards={memoryCardsArr} currentUser={user}/>
+                      <ContainerCardsGame players={participantsArr} wantToLeave={""} sameUsersPlayTwice={sameUsersPlayTwice} cards={memoryCardsArr} currentUser={user}/>
                   </div>
             </div> )
            : 

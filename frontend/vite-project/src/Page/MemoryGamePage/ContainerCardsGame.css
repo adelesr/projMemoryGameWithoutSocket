@@ -30,6 +30,7 @@
 .gameBoard{
     display: grid;
     /* flex-wrap: wrap; */
+    position: relative;
     justify-content:center;
     align-items: center;
     margin-left: 25%;
@@ -54,6 +55,22 @@
 }
 .redBorder{
     border: 6px solid black;
-    
-   
+}
+.leaveGameMsg{
+    top:50vh;
+    left: 50vw;
+    position: fixed;
+    transform: translate(-50%, -50%);
+    width: 500px;
+    height: 200px;
+    align-items: center;
+    justify-content: center;
+    background-color:  rgba(0, 0, 0, 0.8);
+    box-shadow: 2px;
+    opacity: 3px;
+    font-size: 50px;
+    z-index: 1000;
+    color: red;
+    font-weight: bold;
+    font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
 }
